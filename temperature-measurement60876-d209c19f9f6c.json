@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "temperature-measurement60876",
+  "private_key_id": "d209c19f9f6c3f7ced2020837a797b1a68a042b1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDNcHR+lkjAEfSo\nCFd3QoXgCiBNatRC5plaF8E5NE2V47gPaMvjU54jrve7Zjsc24+EVeb5mQBXyWw5\n0BAtXzcCJjO+7Xn2FXE0ON4CB+7CslxeSajdUci0kneX0fnF0g3Wpm0ONoqaaD5g\n1j0JEjDbhceySbrQfHAqvGpxfKx47m8QRtHk5PABtgMBNLDV4rFi+1t/OK2Gl2wC\nCTuRw+hFu8IF1lNJHfHmWU0JYWc9M64NATOlXQIJVkXd1aSkga7Hslsvbh8CGVeY\nBgyfLdah/bVefP6ZCbgfcTuvXqyQfE7SH4UVxckO0WgQyStS4Zjg1AECkGj7anBF\nz2n8/uaRAgMBAAECggEAGfT5+x6Q7Ze3Ml3vczWYBbEx2KZFUHijaqMyukAWB3jA\nwk2q6Tug8QBD880cbe596SoTZ3kB9pWQE5Pq31i28hISmq6VqNaXuZHv1xDahYYU\nrqMe72vMcKhK7QdOSETck8DuaYvRomXGb+TRzGocezghfbDcJkh6waORzWoDvrmj\nogpEee7UfRv/HEHYoyqvw2xP2yUkvfVl0Fpn6BpIk8bnbpODmahePV+lGBygBJj1\nEzMvHjbt9r8wjlJ05E9PY8eqh4uNqW+e/tf4xoV57kK/U2juD6tYo4g4xq98ZsNn\nNJjqsbPVsTF7LnQbXSA8XJXEUR9fsGa0XwXpozvouQKBgQDl3td5UeLVuxvUf1fE\nLFm6tDL3RyE7omswhEyyfQ43yRhOEui0mFtTI0kQIXGqzBtJLhNXAgYA6zbpylJd\nanuipSlLpLIYi4c2L88Dhy1UJaHTo9GzeQG7FfJAA8xbD7/ljRYqbgynuVMTD0dE\nV5tlZUwtXEZOiBkgTfOj0hwnnQKBgQDkyqxXv7AVu6aWcGWTk853BvPxiZoFqqop\nCsDHRKeSGDVaxLnUgoqyPz27WDN//n2LvipmqmsMQectCYLWuwOxDbY0N5098Tip\nZGnPtr92wuNmPut9zxCmnXrUsB+h/CiiN4m1V/V/OZoVQlRSgA4ugrbuKdi9ej8A\nbgK9Hrv6hQKBgG9ZTMMl2V1y73412Uvbt/Nqyq1htUVv3cB4tbZYQYTgUnevTS3+\nB270TrYTnT4A9M60FQY2orXbOpRxPwilRhJ5MtHDi8m7/NlQu1SYLGrwd71PQ4tO\neHopnVlI/bq2nFwTxcLz4Al3CjjXU8xVK58oPIhUhHISFynA2N5oLt85AoGAHnWR\nDjmZ4rrRydN64nPaF+SYE38DP1/iOYaR9bWBLaUFbWklaFJczrA2srtiV9b0tecC\nVBq6F66qbUeH4LiTHD48FKWWzIlRxtN0ds/Ym6IEjjcwONaZW+U5VhmAjJs6eaY1\nMixcpaxwhAYJndYojS6f1gNCNK+StabvvGfcFNUCgYEA0xv/SbnKQtYXx5LDlUmv\ndurbkV/tfmHPG+ke8TMHKvicLh4fcUYOun9TUYo+UVHdAZSveATDJdma8oYyyNuj\npygPI2sPZa9vQw3zgox+nY+UQQ8MYZ8rwlJ5g3Ya/VY9SIpVqk3PXgIsSzFojYGZ\nAYwnagocKOqkVOdtUXEdv7o=\n-----END PRIVATE KEY-----\n",
+  "client_email": "test1-29-303@temperature-measurement60876.iam.gserviceaccount.com",
+  "client_id": "112728313366512783163",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test1-29-303%40temperature-measurement60876.iam.gserviceaccount.com"
+}
