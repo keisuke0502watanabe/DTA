@@ -86,14 +86,14 @@ def ambTh(t0, t1, pv2182A, pv2000, filenameError):
 cell_list=[]
 sheet_pointer =2
 list_pointer = 0
-wks = gc.open(sheet_name).sheet1
-thread1 = threading.Thread(target=columnSet, args=(wks,))
-thread2 = threading.Thread(target=wksUpdate, args=(wks,cell_list,))
+#wks = gc.open(sheet_name).sheet1
+#thread1 = threading.Thread(target=columnSet, args=(wks,))
+#thread2 = threading.Thread(target=wksUpdate, args=(wks,cell_list,))
 #l = 0
 
-thread3 = threading.Thread(target=cellListUpdate, args=(wks, sheet_pointer,))
+#thread3 = threading.Thread(target=cellListUpdate, args=(wks, sheet_pointer,))
 
-print(sheet_name)
+#print(sheet_name)
 
 
 #　以下本文
@@ -117,10 +117,10 @@ if Q2 == 'y':
 #     filenameError = filenameExpCond+'Error.csv'
 
 elif Q2 == 'n':
-    samplename = input("What is name of the samle :")
-    filenameExpCond = samplename + "ExpCond.csv"
-    filenameResults = samplename + "Results.csv"
-    filenameError = samplename + "Error.csv"
+    #sampleName = input("What is name of the samle :")
+    filenameExpCond = sampleName + "ExpCond.csv"
+    filenameResults = sampleName + "Results.csv"
+    filenameError = sampleName + "Error.csv"
     f = open(str(filenameExpCond), mode='a')
     f.close()
     f = open(str(filenameError), mode='a')
@@ -135,11 +135,11 @@ for i in range(1,len(line)):
         print('exp. '+str(i) +' : ')
         print(line[i])
     
-os.chdir("/home/pi/Desktop/dta/Experiment_result")
+os.chdir("/home/yasumotosuzuka/Desktop/dta/Experiment_result")
 print(os.path.exists(filenameResults))
 print(os.listdir())
 if not os.path.exists(filenameResults):
-    thread1.start()
+    #thread1.start()
     f = open(str(filenameResults), mode='a')
     f.write("set Temp. / K\t time / s\t dt of Kei2000/ microvolts \tdt of Kei2182A/ microvolts\t dt of Kei2000/K \t dt of Kei2182A/K \t Heat or cool \t Run \t Date \t Time of Day \t Sample Name \n")
     f.close()
@@ -174,10 +174,10 @@ Chino.setSv(Tsv[1])
 Tsvtemp=Tsv[1]
 wait1st=float(input("How long will you wait before 1st measurement? [sec]: "))
 print("The measurement started at "+ str(datetime.datetime.now()))
-line_notify("The measurement started at "+ str(datetime.datetime.now()))
+#line_notify("The measurement started at "+ str(datetime.datetime.now()))
 td = datetime.timedelta(minutes=timeExp)
 print("The measurement will finish at "+str(datetime.datetime.now()+td))
-line_notify("The measurement will finish at "+str(datetime.datetime.now()+td))
+#line_notify("The measurement will finish at "+str(datetime.datetime.now()+td))
 time.sleep(wait1st)
 
 t0 = time.time()
@@ -185,7 +185,7 @@ t3 = t0
 
 for k in range(1,len(line)):
     print("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K" )
-    line_notify("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K")
+    #line_notify("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K")
     if k ==1:
         print("Wait for " + str(wait1st) +" sec.")
     else:
@@ -193,7 +193,7 @@ for k in range(1,len(line)):
     print(rate[k])
     print(dt[k])
     
-    print("Run", "Date and Time", "Tsv / K", "pv2000", "pv2182A", "Tpv2000", "Tpv2182A")
+    print("Run", "Date       Time", "    t/s Tsv / K", "pv2000  ", "pv2182A", " Tpv2000","Tpv2181A", "Tpvchino")
 
     while True:
         time.sleep(.5)
@@ -215,11 +215,12 @@ for k in range(1,len(line)):
                 Chino.setSv(Tsvtemp)
 #         Chino.setSv(Tsvtemp)
         t1 = time.time()
-        pv2000 = float(Keigetpv.getPv2000())*1000000
-        pv2182A = float(Keigetpv.getPv2182A())*1000000
-        vttotemp.VtToTemp(pv2000)
+        pv2000 = float(Keigetpv.getPv2000())*1000
+        pv2182A = float(Keigetpv.getPv2182A())
+        Tpv2000=vttotemp.VtToTemp(pv2000)
         a = vttotemp.VtToTemp(pv2000)
-        vttotemp.VtToTemp(pv2182A)
+        Tpv2182A=vttotemp.VtToTemp(pv2182A)
+        Tpvchino=Chino.getPv()
                 # 記録＆可視化
 #        
 # threadAmb = threading.Thread(target=ambTh, args=(t0, t1, pv2182A, pv2000,filenameError,))
@@ -229,12 +230,37 @@ for k in range(1,len(line)):
                     hoc = "heat"
         elif rate[k] < 0:
                     hoc = "cool"
-        print(k, datetime.datetime.now(),round(Tsvtemp,3),round(t1-t0,3),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A), )
+        # Get current time
+        current_time = datetime.datetime.now()
+
+        # Format with 2 decimal places for seconds
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
+        print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2)," ",round(Tpv2182A,2),"   ",round(Tpvchino,2))
         try:
-            result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
-        except:
-            pass
-        f.write(result)
+        #    result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
+            result = "{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(
+            float(Tsvtemp),
+            pv2000,
+            pv2182A,
+            Tpv2000 if round(Tpv2000,2) is not None else 0.0,
+            Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
+            hoc,
+            k,
+            datetime.date.today(),
+            datetime.datetime.now().time(),
+            sampleName
+            )
+            #print(round(pv2000,2))
+            f.write(result)
+        #except:
+            #pass
+        except Exception as e:
+            print(f"Error formatting result: {e}")
+            # Either define a default result or skip writing to file
+            # For example:
+            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName}\n"
+            f.write(default_result)
+        #f.write(result)
         f.close()
         try:
                     cell_list[list_pointer].value= float(Tsv[k])
@@ -254,7 +280,7 @@ for k in range(1,len(line)):
         list_pointer+=11
         if list_pointer > 99:
             print('upload')
-            print("Run", "Date and Time", "Tsv / K", "pv2000", "pv2182A", "Tpv2000", "Tpv2182A")
+            print("Run", "Date","     Time", "Tsv / K", "pv2000", "pv2182A", "Tpv2000", "Tpv2182A")
             try:
                 thread2.start()
             except:
@@ -292,4 +318,4 @@ for k in range(1,len(line)):
                 break
 
     
-line_notify("finished")
+#line_notify("finished")
