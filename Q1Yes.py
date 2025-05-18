@@ -16,18 +16,12 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
  #鍵 
-key_name = '/home/pi/Desktop/json_file/teruyama/my-project-333708-dad962c8e2e4.json'
-sheet_name = 'teruyama test1'
+
 #APIにログイン
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name(key_name, scope)
 gc = gspread.authorize(credentials)
-def line_notify(message):
-    line_notify_token = 'eWlJ7unqLdoIyYXsbuFh84XZ1D75tB8XUl73FbrJfUt'
-    line_notify_api = 'https://notify-api.line.me/api/notify'
-    payload = {'message': message}
-    headers = {'Authorization': 'Bearer ' + line_notify_token}
-    requests.post(line_notify_api, data=payload, headers=headers)
+
 
 def columnSet(wks):
     cell_number1 = 'A1'
