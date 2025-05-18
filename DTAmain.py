@@ -1,5 +1,5 @@
 import Keigetpv
-import ChsetSv
+import Chino
 import time
 import setScanrate
 import threading

@@ -2,7 +2,7 @@
 import serial
 
 def setSerKei2000():
-    with serial.Serial('/dev/ttyUSB1') as ser2000:
+    with serial.Serial('/dev/ttyUSB0') as ser2000:
         ser2000.baudrate=9600
         ser2000.bytesize=serial.EIGHTBITS
         ser2000.parity=serial.PARITY_NONE
@@ -13,7 +13,7 @@ def setSerKei2000():
     return ser2000
 
 def setSerKei2182A():
-    with serial.Serial('/dev/ttyUSB0') as ser2182A:
+    with serial.Serial('/dev/ttyUSB2') as ser2182A:
         ser2182A.baudrate=9600
         ser2182A.bytesize=serial.EIGHTBITS
         ser2182A.parity=serial.PARITY_NONE
@@ -22,3 +22,5 @@ def setSerKei2182A():
         ser2182A.timeout=5
         
     return ser2182A
+
+# print(setSerKei2000())

@@ -1,5 +1,5 @@
 import time
-import ChsetSv
+import Chino
 
 def rate(Ti,Tf,rate):
     t0 = time.time()
@@ -11,7 +11,7 @@ def rate(Ti,Tf,rate):
         t2 = t1-t0
         print(round(sv,3),round(t2,3))
         time.sleep(1)
-        ChsetSv.setSv(sv)
+        Chino.setSv(sv)
         num += rate
 #         mod = t2 % 60
 #         if (mod >= 30 and mod < 31) or (mod >= 0 and mod < 1):

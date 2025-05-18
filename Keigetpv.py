@@ -32,25 +32,12 @@ def getPv2000():
             a = struct.unpack_from("B",recv_data, 0)
             b=a[0]
             b=chr(b)
-            #print(b)
             c+=b
             if len(c) == 15:
-                #print(c)
                 break
-            
-#             if i == 16:
-#                 c=b
-# 
-#             if b =="\x03":
-#                 pv=int(c,16)
-#                 pv=round(pv*.1+273.2,1)
-#                 am.amb(pv)
-#                 break
-#             if i > 16:
-#                 c+=b
-#             i += 1
+
     ser.close()
-    #print("return")
+
     return c
 
 def getPv2182A():
@@ -66,8 +53,6 @@ def getPv2182A():
     x=b'\r'
     ser.write(x)
     
-    #to receive data
-    #print("recv data")
     pv=0
     c=""
     camma=0
@@ -78,25 +63,10 @@ def getPv2182A():
             a = struct.unpack_from("B",recv_data, 0)
             b=a[0]
             b=chr(b)
-            #print(b)
             c+=b
             if len(c) == 15:
-                print(c)
                 break
-            
-#             if i == 16:
-#                 c=b
-# 
-#             if b =="\x03":
-#                 pv=int(c,16)
-#                 pv=round(pv*.1+273.2,1)
-#                 am.amb(pv)
-#                 break
-#             if i > 16:
-#                 c+=b
-#             i += 1
     ser.close()
-    #print("return")
     return c
 
 # while True:
@@ -105,4 +75,5 @@ def getPv2182A():
 #     time.sleep(1)
     
 
-    
+# print(getPv2000())
+print(getPv2182A())
