@@ -12,6 +12,7 @@ import traceback
 from natsort import natsorted
 #import 
 import requests
+import stepmotor
 #import gspread
 #from oauth2client.service_account import ServiceAccountCredentials
 
@@ -95,10 +96,15 @@ list_pointer = 0
 
 #print(sheet_name)
 
-
+#print(Keigetpv.get_pressure())
 #　以下本文
 m = 1
 text = []
+Q1 = input("Do you want to control the stepping mortor. y/n:")
+if Q1 =='y':
+        pulse_count= input('Input the num ber pulses. (100-2300000) :')
+        stepmortor.op_stepmortor(pulse_count)
+        
 Q2 = input("Have you already measured? y/n:")
 sampleName=input("What is the sample name?")
 if Q2 == 'y':
@@ -141,7 +147,7 @@ print(os.listdir())
 if not os.path.exists(filenameResults):
     #thread1.start()
     f = open(str(filenameResults), mode='a')
-    f.write("set Temp. / K\t time / s\t dt of Kei2000/ microvolts \tdt of Kei2182A/ microvolts\t dt of Kei2000/K \t dt of Kei2182A/K \t Heat or cool \t Run \t Date \t Time of Day \t Sample Name \n")
+    f.write("set Temp./K\ttime/s\tdt(Kei2000)/millivolts\tdt(Kei2182A)/volts\tTemp(Kei2000)/K\tHeat or cool\tRun\tDate\tTime of Day\tSampleName\tP/MPa\tVp/volts\n")
     f.close()
 
 
@@ -193,7 +199,8 @@ for k in range(1,len(line)):
     print(rate[k])
     print(dt[k])
     
-    print("Run", "Date       Time", "    t/s Tsv / K", "pv2000  ", "pv2182A", " Tpv2000","Tpv2181A", "Tpvchino")
+    header="Run " + "Date       Time"+ "     t/s Tsv / K"+ "  pv2000  "+ "pv2182A"+ "  Tpv2000"+ "   Tpvchino"+" P / MPa"+ " pv2000pressure"
+    print(header)
 
     while True:
         time.sleep(.5)
@@ -235,20 +242,24 @@ for k in range(1,len(line)):
 
         # Format with 2 decimal places for seconds
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
-        print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2)," ",round(Tpv2182A,2),"   ",round(Tpvchino,2))
+        pressure,Vp=Keigetpv.get_pressure()
+        print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
         try:
         #    result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
-            result = "{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(
+            result = "{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\n".format(
             float(Tsvtemp),
+            round(float(t1-t0),1),
             pv2000,
             pv2182A,
             Tpv2000 if round(Tpv2000,2) is not None else 0.0,
-            Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
+            #Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
             hoc,
             k,
             datetime.date.today(),
             datetime.datetime.now().time(),
-            sampleName
+            sampleName,
+            pressure,
+            Vp
             )
             #print(round(pv2000,2))
             f.write(result)
@@ -258,7 +269,7 @@ for k in range(1,len(line)):
             print(f"Error formatting result: {e}")
             # Either define a default result or skip writing to file
             # For example:
-            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName}\n"
+            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName} \t {pressure} \t {Vp}\n"
             f.write(default_result)
         #f.write(result)
         f.close()
@@ -280,7 +291,7 @@ for k in range(1,len(line)):
         list_pointer+=11
         if list_pointer > 99:
             print('upload')
-            print("Run", "Date","     Time", "Tsv / K", "pv2000", "pv2182A", "Tpv2000", "Tpv2182A")
+            print(header)
             try:
                 thread2.start()
             except:
