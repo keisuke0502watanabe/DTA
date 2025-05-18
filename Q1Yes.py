@@ -12,8 +12,8 @@ import traceback
 from natsort import natsorted
 #import 
 import requests
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+#import gspread
+#from oauth2client.service_account import ServiceAccountCredentials
 
  #鍵 
 
@@ -22,7 +22,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 #credentials = ServiceAccountCredentials.from_json_keyfile_name(key_name, scope)
 #gc = gspread.authorize(credentials)
 
-
+'''
 def columnSet(wks):
     cell_number1 = 'A1'
     input_value1 = 'set Temp. / K'
@@ -82,7 +82,7 @@ def ambTh(t0, t1, pv2182A, pv2000, filenameError):
                 f.write('\n')
                 f.close()
                 line_notify(str(traceback.print_exc()))
-                
+''' 
 cell_list=[]
 sheet_pointer =2
 list_pointer = 0
@@ -102,7 +102,7 @@ text = []
 Q2 = input("Have you already measured? y/n:")
 sampleName=input("What is the sample name?")
 if Q2 == 'y':
-    path='/home/pi/Desktop/Experiment_condition'
+    path='/home/yasumotosuzuka/Desktop/dta/Experiment_condition'
     os.chdir(path)
     list=os.listdir(path)
     list=natsorted(list)
@@ -135,7 +135,7 @@ for i in range(1,len(line)):
         print('exp. '+str(i) +' : ')
         print(line[i])
     
-os.chdir("/home/pi/Desktop/Experiment_result")
+os.chdir("/home/pi/Desktop/dta/Experiment_result")
 print(os.path.exists(filenameResults))
 print(os.listdir())
 if not os.path.exists(filenameResults):
