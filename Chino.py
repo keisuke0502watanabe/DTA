@@ -8,7 +8,7 @@ import struct
 # ser = serial.Serial('/dev/ttyUSB0', baudrate=4800, bytesize=serial.SEVENBITS, parity=serial.PARITY_EVEN, stopbits=serial.STOPBITS_ONE, timeout=5)
  
 with serial.Serial('/dev/ttyUSB1') as ser:
-    ser.baudrate=4800
+    ser.baudrate=9600
     ser.bytesize=serial.SEVENBITS
     ser.parity=serial.PARITY_EVEN
     ser.stopbits=serial.STOPBITS_ONE
@@ -120,4 +120,4 @@ def getPv():
     return float(pv)
     
 
-#setSv(320)
+#setSv(120)

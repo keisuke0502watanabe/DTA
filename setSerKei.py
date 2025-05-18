@@ -2,7 +2,7 @@
 import serial
 
 def setSerKei2000():
-    with serial.Serial('/dev/ttyUSB0') as ser2000:
+    with serial.Serial('/dev/ttyUSB3') as ser2000:
         ser2000.baudrate=9600
         ser2000.bytesize=serial.EIGHTBITS
         ser2000.parity=serial.PARITY_NONE
@@ -23,4 +23,16 @@ def setSerKei2182A():
         
     return ser2182A
 
-# print(setSerKei2000())
+def setSerKei2000forPressure():
+    with serial.Serial('/dev/ttyUSB0') as ser2000pressure:
+        ser2000pressure.baudrate=9600
+        ser2000pressure.bytesize=serial.EIGHTBITS
+        ser2000pressure.parity=serial.PARITY_NONE
+        ser2000pressure.stopbits=serial.STOPBITS_ONE
+        ser2000pressure.xonxoff=False
+        ser2000pressure.timeout=5
+        
+    return ser2000pressure
+
+#print(setSerKei2000())
+#print(setSerKei2182A())
