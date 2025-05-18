@@ -18,9 +18,9 @@ from oauth2client.service_account import ServiceAccountCredentials
  #鍵 
 
 #APIにログイン
-scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name(key_name, scope)
-gc = gspread.authorize(credentials)
+#scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+#credentials = ServiceAccountCredentials.from_json_keyfile_name(key_name, scope)
+#gc = gspread.authorize(credentials)
 
 
 def columnSet(wks):
