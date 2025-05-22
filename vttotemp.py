@@ -81,16 +81,19 @@ def VtToTemp(Vt):
      return Region6(Vt)
   elif Vt>=4840 and Vt<=8400:
      return Region7(Vt)
-    
-# import Keigetpv
-# import time
-# while True:
-#     Vt2000 = Keigetpv.getPv2000()
-#     #Vt2182A = Keigetpv.getPv2182A()
-#     Vt2000 = float(Vt2000)
-#     print(Vt2000*1000000)
-#     #Vt2182A = float(Vt2182A)
-#     print(VtToTemp(1000000*Vt2000))
-#     #print(VtToTemp(Vt2182A))
-#     time.sleep(1)
-    
+
+#print(Region5(1960))
+
+'''
+import Keigetpv
+import time
+while True:
+     Vt2000 = Keigetpv.getPv2000()
+     #Vt2182A = Keigetpv.getPv2182A()
+     Vt2000 = float(Vt2000)
+     print(Vt2000*1000000)
+     #Vt2182A = float(Vt2182A)
+     print(VtToTemp(1000000*Vt2000))
+     #print(VtToTemp(Vt2182A))
+     time.sleep(1)
+'''

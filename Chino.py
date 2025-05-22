@@ -120,4 +120,5 @@ def getPv():
     return float(pv)
     
 
-#setSv(120)
+#setSv(300)
+#print(getPv())

@@ -7,7 +7,7 @@ import threading
 import csv
 import os
 import vttotemp
-import am
+#import am
 import traceback
 from natsort import natsorted
 #import 
@@ -147,7 +147,7 @@ print(os.listdir())
 if not os.path.exists(filenameResults):
     #thread1.start()
     f = open(str(filenameResults), mode='a')
-    f.write("set Temp./K\ttime/s\tdt(Kei2000)/millivolts\tdt(Kei2182A)/volts\tTemp(Kei2000)/K\tHeat or cool\tRun\tDate\tTime of Day\tSampleName\tP/MPa\tVp/volts\n")
+    f.write("set Temp./K\ttime/s\tdt(Kei2000)/microvolts\tdt(Kei2182A)/volts\tTemp(Kei2000)/K\tHeat or cool\tRun\tDate\tTime of Day\tSampleName\tP/MPa\tVp/volts\tTpv(Chino)\n")
     f.close()
 
 
@@ -205,7 +205,11 @@ for k in range(1,len(line)):
     while True:
         time.sleep(.5)
         #?
-        a = Chino.getPv()  
+        try:
+            a = Chino.getPv()
+        except:
+            pass
+        
         #sheet_pointer
         # 測定
         time.sleep(1)
@@ -214,20 +218,39 @@ for k in range(1,len(line)):
         t3 = t1
         
         if k==1:
-            Tsvtemp = Tsvtemp + dt[k]*t2
-            Chino.setSv(Tsvtemp)
+            try:
+                
+                Tsvtemp = Tsvtemp + dt[k]*t2
+                if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
+                    Tsvtemp = Tsvtemp - dt[k]*t2
+                elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
+                    Tsvtemp = Tsvtemp - dt[k]*t2
+                    
+                Chino.setSv(Tsvtemp)
+            except:
+                pass
         else:
             if t1 > t4+wait[k-1]:
-                Tsvtemp = Tsvtemp + dt[k]*t2
-                Chino.setSv(Tsvtemp)
+                try:
+                    Tsvtemp = Tsvtemp + dt[k]*t2
+                    if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
+                        Tsvtemp = Tsvtemp - dt[k]*t2
+                    elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
+                        Tsvtemp = Tsvtemp - dt[k]*t2
+                    Chino.setSv(Tsvtemp)
+                except:
+                    pass        
 #         Chino.setSv(Tsvtemp)
-        t1 = time.time()
-        pv2000 = float(Keigetpv.getPv2000())*1000
-        pv2182A = float(Keigetpv.getPv2182A())
-        Tpv2000=vttotemp.VtToTemp(pv2000)
-        a = vttotemp.VtToTemp(pv2000)
-        Tpv2182A=vttotemp.VtToTemp(pv2182A)
-        Tpvchino=Chino.getPv()
+        try:
+            t1 = time.time()
+            pv2000 = float(Keigetpv.getPv2000())*1000000
+            pv2182A = float(Keigetpv.getPv2182A())
+            Tpv2000=vttotemp.VtToTemp(pv2000)
+            a = vttotemp.VtToTemp(pv2000)
+            Tpv2182A=vttotemp.VtToTemp(pv2182A)
+            Tpvchino=Chino.getPv()
+        except:
+            pass
                 # 記録＆可視化
 #        
 # threadAmb = threading.Thread(target=ambTh, args=(t0, t1, pv2182A, pv2000,filenameError,))
@@ -242,13 +265,20 @@ for k in range(1,len(line)):
 
         # Format with 2 decimal places for seconds
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
-        pressure,Vp=Keigetpv.get_pressure()
-        print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
+        try:
+            pressure,Vp=Keigetpv.get_pressure()
+        except:
+            pass
+        
         try:
         #    result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
+            print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
+            
+            #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
+            
             result = "{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\n".format(
-            float(Tsvtemp),
-            round(float(t1-t0),1),
+            round(float(Tsvtemp),1) if round(float(Tsvtemp),1) is not None else 0.0,
+            round(float(t1-t0),1) if round(float(t1-t0),1) is not None else 0.0,
             pv2000,
             pv2182A,
             Tpv2000 if round(Tpv2000,2) is not None else 0.0,
@@ -259,17 +289,20 @@ for k in range(1,len(line)):
             datetime.datetime.now().time(),
             sampleName,
             pressure,
-            Vp
+            #Vp,
+            Tpvchino
             )
+            
             #print(round(pv2000,2))
             f.write(result)
         #except:
             #pass
         except Exception as e:
             print(f"Error formatting result: {e}")
+            #print(298)
             # Either define a default result or skip writing to file
             # For example:
-            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName} \t {pressure} \t {Vp}\n"
+            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName} \t {pressure} \t {Vp}\n \t {Tpvchino}"
             f.write(default_result)
         #f.write(result)
         f.close()
@@ -309,7 +342,8 @@ for k in range(1,len(line)):
 
 #############
         # 終了条件
-        if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
+        try:
+            if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
                 print(k)
                 print(rate[k])
                 print("Run " + str(k) + " was finished")                           
@@ -318,7 +352,7 @@ for k in range(1,len(line)):
                 t4 = time.time()
                 break
                             
-        elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
+            elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
                 print(k)
                 print(Tsv[k])
                 print(Tf[k])
@@ -327,6 +361,8 @@ for k in range(1,len(line)):
                 #time.sleep(wait[k])
                 t4 = time.time()
                 break
+        except:
+            pass
 
     
 #line_notify("finished")

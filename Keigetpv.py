@@ -124,8 +124,9 @@ def get_pressure():
 #     getPv2182A()
 #     time.sleep(1)
     
-
-#print(getPv2000())
-#print(getPv2182A())
-#print(getPv2000pressure())
-#print(get_pressure())
+'''
+print(getPv2000())
+print(getPv2182A())
+print(getPv2000pressure())
+print(get_pressure())
+'''
