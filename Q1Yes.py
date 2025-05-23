@@ -10,6 +10,7 @@ import vttotemp
 #import am
 import traceback
 from natsort import natsorted
+
 #import 
 import requests
 import stepmotor
@@ -147,7 +148,7 @@ print(os.listdir())
 if not os.path.exists(filenameResults):
     #thread1.start()
     f = open(str(filenameResults), mode='a')
-    f.write("set Temp./K\ttime/s\tdt(Kei2000)/microvolts\tdt(Kei2182A)/volts\tTemp(Kei2000)/K\tHeat or cool\tRun\tDate\tTime of Day\tSampleName\tP/MPa\tVp/volts\tTpv(Chino)\n")
+    f.write("No.\tset Temp./K\ttime/s\tdt(Kei2000)/volts\tdt(Kei2182A)/volts\tTemp(Kei2182A)/K\tHeat or cool\tRun\tDate\tTime of Day\tSampleName\tP/MPa\tVp/volts\tTpv(Chino)\n")
     f.close()
 
 
@@ -164,7 +165,8 @@ for k in range(1,len(line)):
     Tf.append(float(line[k][2]))
     rate.append(float(line[k][3]))
     wait.append(float(line[k][4]))
-    dt.append(float(line[k][3])/60)
+    dt_round=round(float(line[k][3])/60,3)
+    dt.append(dt_round)
     print(k,Tsv, Tf, rate, wait, dt)
     timeExp=timeExp+abs((Tf[k]-Tsv[k])/rate[k])+wait[k]/60
     print(k, timeExp)
@@ -177,6 +179,7 @@ print(timeExp)
 
 #change temp. to first Tsv
 Chino.setSv(Tsv[1])
+Tsv_prev=Tsv[1]
 Tsvtemp=Tsv[1]
 wait1st=float(input("How long will you wait before 1st measurement? [sec]: "))
 print("The measurement started at "+ str(datetime.datetime.now()))
@@ -199,10 +202,11 @@ for k in range(1,len(line)):
     print(rate[k])
     print(dt[k])
     
-    header="Run " + "Date       Time"+ "     t/s Tsv / K"+ "  pv2000  "+ "pv2182A"+ "  Tpv2000"+ "   Tpvchino"+" P / MPa"+ " pv2000pressure"
+    header="No." + "Run " + " Date       Time"+ "     t/s  Tsv / K"+ "   pv2000  "+ "pv2182A"+ "  Tpv2182"+ "   Tpvchino"+" P / MPa"+ " pv2000pressure"
     print(header)
 
     while True:
+        list_pointer+=1
         time.sleep(.5)
         #?
         try:
@@ -221,33 +225,39 @@ for k in range(1,len(line)):
             try:
                 
                 Tsvtemp = Tsvtemp + dt[k]*t2
+                Tsvtemp = round(Tsvtemp,2)
                 if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
                     Tsvtemp = Tsvtemp - dt[k]*t2
                 elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
                     Tsvtemp = Tsvtemp - dt[k]*t2
                     
-                Chino.setSv(Tsvtemp)
+                if	not(Tsvtemp==Tsv_prev):
+                    Chino.setSv(Tsvtemp)
+                Tsv_prev=Tsvtemp
             except:
                 pass
         else:
             if t1 > t4+wait[k-1]:
                 try:
                     Tsvtemp = Tsvtemp + dt[k]*t2
+                    Tsvtemp=round(Tsvtemp,2)
                     if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
                         Tsvtemp = Tsvtemp - dt[k]*t2
                     elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
                         Tsvtemp = Tsvtemp - dt[k]*t2
-                    Chino.setSv(Tsvtemp)
+                    if not(Tsvtemp==Tsv_prev):
+                        Chino.setSv(Tsvtemp)
+                    Tsv_prev=Tsvtemp
                 except:
                     pass        
 #         Chino.setSv(Tsvtemp)
         try:
             t1 = time.time()
-            pv2000 = float(Keigetpv.getPv2000())*1000000
+            pv2000 = float(Keigetpv.getPv2000())
             pv2182A = float(Keigetpv.getPv2182A())
             Tpv2000=vttotemp.VtToTemp(pv2000)
             a = vttotemp.VtToTemp(pv2000)
-            Tpv2182A=vttotemp.VtToTemp(pv2182A)
+            Tpv2182A=vttotemp.VtToTemp(pv2182A*1000000)
             Tpvchino=Chino.getPv()
         except:
             pass
@@ -272,24 +282,26 @@ for k in range(1,len(line)):
         
         try:
         #    result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
-            print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
+            #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
+            print(list_pointer,"",k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),"  ",round(pv2000*1000,2),"m ",round(pv2182A,5)," ",round(Tpv2182A,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
             
             #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
             
-            result = "{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\n".format(
-            round(float(Tsvtemp),1) if round(float(Tsvtemp),1) is not None else 0.0,
-            round(float(t1-t0),1) if round(float(t1-t0),1) is not None else 0.0,
+            result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
+            list_pointer,
+            round(float(Tsvtemp),2) if round(float(Tsvtemp),1) is not None else 0.0,
+            round(float(t1-t0),2) if round(float(t1-t0),1) is not None else 0.0,
             pv2000,
             pv2182A,
-            Tpv2000 if round(Tpv2000,2) is not None else 0.0,
-            #Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
+            #Tpv2000 if round(Tpv2000,2) is not None else 0.0,
+            Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
             hoc,
             k,
             datetime.date.today(),
             datetime.datetime.now().time(),
             sampleName,
             pressure,
-            #Vp,
+            Vp,
             Tpvchino
             )
             
@@ -306,6 +318,7 @@ for k in range(1,len(line)):
             f.write(default_result)
         #f.write(result)
         f.close()
+        '''
         try:
                     cell_list[list_pointer].value= float(Tsv[k])
                     cell_list[list_pointer+1].value=float(t1-t0)
@@ -321,25 +334,30 @@ for k in range(1,len(line)):
                     
         except:
                     pass
-        list_pointer+=11
-        if list_pointer > 99:
+        '''
+        if (list_pointer % 10) == 0:
             print('upload')
             print(header)
+        
+
+        '''
             try:
                 thread2.start()
             except:
                 pass
-                #wks.update_cells(cell_list)
-            list_pointer = 0
-            sheet_pointer += 10
+        '''
+            #wks.update_cells(cell_list)
+            #list_pointer = 0
+            #sheet_pointer += 10
                         
 #############  
 # 2022/07/05 Watanabe commented out, modified
+        '''
             try:
                 thread3.start()
             except:
                 pass
-
+        '''
 #############
         # 終了条件
         try:
@@ -350,6 +368,7 @@ for k in range(1,len(line)):
                 print("wait for" + str(wait[k]) + " sec.")
                 #time.sleep(wait[k])
                 t4 = time.time()
+                list_pointer=0
                 break
                             
             elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
@@ -360,9 +379,11 @@ for k in range(1,len(line)):
                 print("wait for" + str(wait[k]) + " sec.")     
                 #time.sleep(wait[k])
                 t4 = time.time()
+                list_pointer=0
                 break
         except:
             pass
 
     
 #line_notify("finished")
+ 
