@@ -348,10 +348,6 @@ print("初期待ち時間 {}秒 の測定が完了しました".format(wait1st))
 for k in range(1,len(line)):
     print("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K" )
     #line_notify("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K")
-    if k ==1:
-        print("Wait for " + str(wait1st) +" sec.")
-    else:
-        print("Wait for " + str(wait[k-1]) +" sec.")
     print(rate[k])
     print(dt[k])
     
