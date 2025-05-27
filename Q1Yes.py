@@ -323,6 +323,10 @@ t0 = time.time()
 t3 = t0
 list_pointer = 0
 
+# ヘッダーの表示
+header = "No." + "Run " + " Date       Time"+ "     t/s  Tsv / K"+ "   pv2000  "+ "pv2182A"+ "  Tpv2182"+ "   Tpvchino"+" P / MPa"+ " pv2000pressure"
+print(header)
+
 # 初期待ち時間中の測定ループ
 while time.time() - t0 < wait1st:
     time.sleep(0.5)
