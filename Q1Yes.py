@@ -224,14 +224,16 @@ for k in range(1,len(line)):
         if k==1:
             try:
                 
-                Tsvtemp = Tsvtemp + dt[k]*t2
-                Tsvtemp = round(Tsvtemp,2)
-                if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
-                    Tsvtemp = Tsvtemp - dt[k]*t2
-                elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
-                    Tsvtemp = Tsvtemp - dt[k]*t2
+                #Tsvtemp = Tsvtemp + dt[k]*t2
+                
+                if (rate[k] > 0 and float(Tsvtemp) <= float(Tf[k])):
+                    Tsvtemp = Tsvtemp + dt[k]*t2
+                    #Tsvtemp = round(Tsvtemp,3)
+                elif (rate[k] < 0 and float(Tsvtemp) >= float(Tf[k])):
+                    Tsvtemp = Tsvtemp + dt[k]*t2
+                    #Tsvtemp = round(Tsvtemp,3)
                     
-                if	not(Tsvtemp==Tsv_prev):
+                if	not(round(Tsvtemp,1)==Tsv_prev):
                     Chino.setSv(Tsvtemp)
                 Tsv_prev=Tsvtemp
             except:
@@ -239,13 +241,16 @@ for k in range(1,len(line)):
         else:
             if t1 > t4+wait[k-1]:
                 try:
-                    Tsvtemp = Tsvtemp + dt[k]*t2
-                    Tsvtemp=round(Tsvtemp,2)
-                    if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
-                        Tsvtemp = Tsvtemp - dt[k]*t2
-                    elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
-                        Tsvtemp = Tsvtemp - dt[k]*t2
-                    if not(Tsvtemp==Tsv_prev):
+                    #Tsvtemp = Tsvtemp + dt[k]*t2
+                    
+                    if (rate[k] > 0 and float(Tsvtemp) <= float(Tf[k])):
+                        Tsvtemp = Tsvtemp + dt[k]*t2
+                        #Tsvtemp=round(Tsvtemp,2)
+                        print(Tsvtemp)
+                    elif (rate[k] < 0 and float(Tsvtemp) >= float(Tf[k])):
+                        Tsvtemp = Tsvtemp + dt[k]*t2
+                        #Tsvtemp=round(Tsvtemp,2)
+                    if not(round(Tsvtemp,1)==Tsv_prev):
                         Chino.setSv(Tsvtemp)
                     Tsv_prev=Tsvtemp
                 except:
@@ -281,17 +286,43 @@ for k in range(1,len(line)):
             pass
         
         try:
-        #    result = "{:.3f}\t {:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {}\t {} \t {} \t {} \t {}\n".format(float(Tsvtemp),float(t1-t0),pv2000,pv2182A,vttotemp.VtToTemp(pv2000),vttotemp.VtToTemp(pv2182A),hoc,k,datetime.date.today(),datetime.datetime.now().time(),sampleName)
-            #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
-            print(list_pointer,"",k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),"  ",round(pv2000*1000,2),"m ",round(pv2182A,5)," ",round(Tpv2182A,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
-            
+            print(
+            list_pointer, "", 
+            k, " ", 
+            formatted_time,
+            round(float(t1-t0), 1) if (t1 is not None and t0 is not None) else 0.0,
+            round(Tsvtemp, 3) if Tsvtemp is not None else 0.0,
+            "  ",
+            round(pv2000*1000, 2) if pv2000 is not None else 0.0,
+            "m ",
+            round(pv2182A, 5) if pv2182A is not None else 0.0,
+            " ",
+            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
+            "   ",
+            round(Tpvchino, 2) if Tpvchino is not None else 0.0,
+            round(pressure, 5) if pressure is not None else 0.0,
+            Vp if Vp is not None else ""
+            )
             #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
             
             result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
             list_pointer,
-            round(float(Tsvtemp),2) if round(float(Tsvtemp),1) is not None else 0.0,
+            round(float(Tsvtemp),3) if round(float(Tsvtemp),3) is not None else 0.0,
             round(float(t1-t0),2) if round(float(t1-t0),1) is not None else 0.0,
-            pv2000,
+            pv2000 if pv2000 is not None else 0.0,
+
+            pv2182A if pv2182A is not None else 0.0,
+            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
+            hoc if hoc is not None else "",
+            k if k is not None else "",
+            datetime.date.today(),
+            datetime.datetime.now().time(),
+            sampleName if sampleName is not None else "",
+            pressure if pressure is not None else 0.0,
+            Vp if Vp is not None else "",
+            round(Tpvchino, 2) if Tpvchino is not None else 0.0
+            )
+            '''
             pv2182A,
             #Tpv2000 if round(Tpv2000,2) is not None else 0.0,
             Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
@@ -303,7 +334,7 @@ for k in range(1,len(line)):
             pressure,
             Vp,
             Tpvchino
-            )
+            '''
             
             #print(round(pv2000,2))
             f.write(result)

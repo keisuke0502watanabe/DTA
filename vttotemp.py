@@ -19,7 +19,7 @@ def VtToTemp(Vt):
      return Region5(Vt)
   elif Vt>=1640 and Vt<=4840:
      return Region6(Vt)
-  elif Vt>=4840 and Vt<=8400:
+  elif Vt>=4840:
      return Region7(Vt)
   else:
      # Handle values outside the defined ranges
