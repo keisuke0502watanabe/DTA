@@ -163,7 +163,19 @@ timeExp=0
 for k in range(1,len(line)):
     Tsv.append(float(line[k][1]))
     Tf.append(float(line[k][2]))
-    rate.append(float(line[k][3]))
+    # 温度変化の方向を確認し、rateの符号を自動調整
+    rate_value = float(line[k][3])
+    if Tsv[k] > Tf[k]:  # 冷却実験の場合
+        if rate_value > 0:  # 正の値が入力されている場合
+            print(f"Warning: 冷却実験ですが、rateが正の値です。自動的に符号を反転します。")
+            print(f"Tsv: {Tsv[k]}K, Tf: {Tf[k]}K, 元のrate: {rate_value}K/min")
+            rate_value = -rate_value
+    elif Tsv[k] < Tf[k]:  # 加熱実験の場合
+        if rate_value < 0:  # 負の値が入力されている場合
+            print(f"Warning: 加熱実験ですが、rateが負の値です。自動的に符号を反転します。")
+            print(f"Tsv: {Tsv[k]}K, Tf: {Tf[k]}K, 元のrate: {rate_value}K/min")
+            rate_value = -rate_value
+    rate.append(rate_value)
     wait.append(float(line[k][4]))
     dt_round=round(float(line[k][3])/60,3)
     dt.append(dt_round)
