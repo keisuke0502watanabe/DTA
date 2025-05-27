@@ -194,7 +194,6 @@ Tsv_prev=Tsv[1]
 Tsvtemp=Tsv[1]
 wait1st=float(input("How long will you wait before 1st measurement? [sec]: "))
 print("The measurement started at "+ str(datetime.datetime.now()))
-#line_notify("The measurement started at "+ str(datetime.datetime.now()))
 td = datetime.timedelta(minutes=timeExp)
 print("The measurement will finish at "+str(datetime.datetime.now()+td))
 #line_notify("The measurement will finish at "+str(datetime.datetime.now()+td))
@@ -316,6 +315,7 @@ def record_and_display_measurement(list_pointer, t0, t1, Tsvtemp, pv2000, pv2182
 header = "No.  Run  Date       Time     t/s    Tsv/K    pv2000    pv2182A    Tpv2182    Tpvchino    P/MPa    Vp"
 print(header)
 
+print("Wait for " + str(wait1st) +" sec.")
 # 初期待ち時間中の測定ループ
 while time.time() - t0 < wait1st:
     time.sleep(0.5)
