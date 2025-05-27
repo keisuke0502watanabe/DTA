@@ -2,7 +2,6 @@ import Keigetpv
 import Chino
 import time
 import datetime
-import setScanrate
 import threading
 import csv
 import os
