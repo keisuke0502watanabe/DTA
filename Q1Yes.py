@@ -248,6 +248,75 @@ def get_measurement_data():
         print("測定データの取得中にエラーが発生しました: {}".format(e))
         return None, None, None, None, None, None, None
 
+def record_and_display_measurement(list_pointer, t0, t1, Tsvtemp, pv2000, pv2182A, Tpv2182A, Tpvchino, 
+                                 pressure, Vp, status, run_number, sampleName, filenameResults):
+    """
+    測定結果の表示と記録を行う関数
+    Args:
+        list_pointer: 測定回数
+        t0: 開始時間
+        t1: 現在時間
+        Tsvtemp: 温度設定値
+        pv2000, pv2182A: 電圧値
+        Tpv2182A, Tpvchino: 温度値
+        pressure, Vp: 圧力値
+        status: 測定状態 ("waiting" or "heat" or "cool")
+        run_number: 実行番号
+        sampleName: サンプル名
+        filenameResults: 結果ファイル名
+    """
+    try:
+        # 結果の表示
+        print(
+            list_pointer, "", 
+            run_number, " ", 
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-7],
+            round(float(t1-t0), 1),
+            round(Tsvtemp, 3),
+            "  ",
+            round(pv2000*1000, 2) if pv2000 is not None else 0.0,
+            "m ",
+            round(pv2182A, 5) if pv2182A is not None else 0.0,
+            " ",
+            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
+            "   ",
+            round(Tpvchino, 2) if Tpvchino is not None else 0.0,
+            round(pressure, 5) if pressure is not None else 0.0,
+            Vp if Vp is not None else ""
+        )
+        
+        # 結果の記録
+        f = open(str(filenameResults), mode='a')
+        result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
+            list_pointer,
+            round(float(Tsvtemp),3) if round(float(Tsvtemp),3) is not None else 0.0,
+            round(float(t1-t0),2) if round(float(t1-t0),1) is not None else 0.0,
+            pv2000 if pv2000 is not None else 0.0,
+            pv2182A if pv2182A is not None else 0.0,
+            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
+            status,
+            run_number,
+            datetime.date.today(),
+            datetime.datetime.now().time(),
+            sampleName if sampleName is not None else "",
+            pressure if pressure is not None else 0.0,
+            Vp if Vp is not None else "",
+            round(Tpvchino, 2) if Tpvchino is not None else 0.0
+        )
+        f.write(result)
+        f.close()
+        
+    except Exception as e:
+        print("Error formatting result: {}".format(e))
+        # エラー時のデフォルト結果
+        default_result = "{}\t {}\t {}\t {}\t ERROR\t {}\t {} \t {} \t {} \t {} \t {} \t {}\n \t {}".format(
+            Tsvtemp, t1-t0, pv2000, pv2182A, status, run_number,
+            datetime.date.today(), datetime.datetime.now().time(),
+            sampleName, pressure, Vp, Tpvchino
+        )
+        f.write(default_result)
+        f.close()
+
 # 初期待ち時間中の測定を開始
 print("初期待ち時間 {}秒 の測定を開始します".format(wait1st))
 t0 = time.time()
@@ -265,30 +334,12 @@ while time.time() - t0 < wait1st:
         # 測定値の取得
         pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp = get_measurement_data()
         
-        # 結果の記録
+        # 結果の表示と記録
         list_pointer += 1
-        f = open(str(filenameResults), mode='a')
-        current_time = datetime.datetime.now()
-        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
-        
-        result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
-            list_pointer,
-            round(float(Tsvtemp),3),
-            round(float(t1-t0),2),
-            pv2000,
-            pv2182A,
-            round(Tpv2182A, 2),
-            "waiting",
-            0,
-            datetime.date.today(),
-            datetime.datetime.now().time(),
-            sampleName,
-            pressure,
-            Vp,
-            round(Tpvchino, 2)
+        record_and_display_measurement(
+            list_pointer, t0, t1, Tsvtemp, pv2000, pv2182A, Tpv2182A, Tpvchino,
+            pressure, Vp, "waiting", 0, sampleName, filenameResults
         )
-        f.write(result)
-        f.close()
         
         # 進捗表示
         if (list_pointer % 10) == 0:
@@ -317,14 +368,11 @@ for k in range(1,len(line)):
     while True:
         list_pointer+=1
         time.sleep(.5)
-        #?
         try:
             a = Chino.getPv()
         except:
             pass
         
-        #sheet_pointer
-        # 測定
         time.sleep(1)
         t1 = time.time()
         t2 = t1-t3
@@ -339,63 +387,12 @@ for k in range(1,len(line)):
         # 測定値の取得
         pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp = get_measurement_data()
         
-        # 記録＆可視化
-        f = open(str(filenameResults), mode='a')
-        if rate[k] > 0:
-                    hoc = "heat"
-        elif rate[k] < 0:
-                    hoc = "cool"
-        # Get current time
-        current_time = datetime.datetime.now()
-
-        # Format with 2 decimal places for seconds
-        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
-        
-        try:
-            print(
-            list_pointer, "", 
-            k, " ", 
-            formatted_time,
-            round(float(t1-t0), 1) if (t1 is not None and t0 is not None) else 0.0,
-            round(Tsvtemp, 3) if Tsvtemp is not None else 0.0,
-            "  ",
-            round(pv2000*1000, 2) if pv2000 is not None else 0.0,
-            "m ",
-            round(pv2182A, 5) if pv2182A is not None else 0.0,
-            " ",
-            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
-            "   ",
-            round(Tpvchino, 2) if Tpvchino is not None else 0.0,
-            round(pressure, 5) if pressure is not None else 0.0,
-            Vp if Vp is not None else ""
-            )
-            
-            result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
-            list_pointer,
-            round(float(Tsvtemp),3) if round(float(Tsvtemp),3) is not None else 0.0,
-            round(float(t1-t0),2) if round(float(t1-t0),1) is not None else 0.0,
-            pv2000 if pv2000 is not None else 0.0,
-
-            pv2182A if pv2182A is not None else 0.0,
-            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
-            hoc if hoc is not None else "",
-            k if k is not None else "",
-            datetime.date.today(),
-            datetime.datetime.now().time(),
-            sampleName if sampleName is not None else "",
-            pressure if pressure is not None else 0.0,
-            Vp if Vp is not None else "",
-            round(Tpvchino, 2) if Tpvchino is not None else 0.0
-            )
-            
-            f.write(result)
-        except Exception as e:
-            print(f"Error formatting result: {e}")
-            # Either define a default result or skip writing to file
-            # For example:
-            default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName} \t {pressure} \t {Vp}\n \t {Tpvchino}"
-            f.write(default_result)
-        f.close()
+        # 結果の表示と記録
+        status = "heat" if rate[k] > 0 else "cool"
+        record_and_display_measurement(
+            list_pointer, t0, t1, Tsvtemp, pv2000, pv2182A, Tpv2182A, Tpvchino,
+            pressure, Vp, status, k, sampleName, filenameResults
+        )
         
         if (list_pointer % 10) == 0:
             print('upload')
@@ -428,4 +425,5 @@ for k in range(1,len(line)):
 
     
 #line_notify("finished")
+ 
  
