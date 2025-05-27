@@ -192,6 +192,20 @@ time.sleep(wait1st)
 t0 = time.time()
 t3 = t0
 
+def update_temperature(rate_k, Tsvtemp, Tf_k, dt_k, t2, Tsv_prev):
+    try:
+        if (rate_k > 0 and float(Tsvtemp) <= float(Tf_k)):
+            Tsvtemp = Tsvtemp + dt_k*t2
+        elif (rate_k < 0 and float(Tsvtemp) >= float(Tf_k)):
+            Tsvtemp = Tsvtemp + dt_k*t2
+            
+        if not(round(Tsvtemp,1)==Tsv_prev):
+            Chino.setSv(Tsvtemp)
+        Tsv_prev=Tsvtemp
+    except:
+        pass
+    return Tsvtemp, Tsv_prev
+
 for k in range(1,len(line)):
     print("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K" )
     #line_notify("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K")
@@ -222,40 +236,10 @@ for k in range(1,len(line)):
         t3 = t1
         
         if k==1:
-            try:
-                
-                #Tsvtemp = Tsvtemp + dt[k]*t2
-                
-                if (rate[k] > 0 and float(Tsvtemp) <= float(Tf[k])):
-                    Tsvtemp = Tsvtemp + dt[k]*t2
-                    #Tsvtemp = round(Tsvtemp,3)
-                elif (rate[k] < 0 and float(Tsvtemp) >= float(Tf[k])):
-                    Tsvtemp = Tsvtemp + dt[k]*t2
-                    #Tsvtemp = round(Tsvtemp,3)
-                    
-                if	not(round(Tsvtemp,1)==Tsv_prev):
-                    Chino.setSv(Tsvtemp)
-                Tsv_prev=Tsvtemp
-            except:
-                pass
+            Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
         else:
             if t1 > t4+wait[k-1]:
-                try:
-                    #Tsvtemp = Tsvtemp + dt[k]*t2
-                    
-                    if (rate[k] > 0 and float(Tsvtemp) <= float(Tf[k])):
-                        Tsvtemp = Tsvtemp + dt[k]*t2
-                        #Tsvtemp=round(Tsvtemp,2)
-                        print(Tsvtemp)
-                    elif (rate[k] < 0 and float(Tsvtemp) >= float(Tf[k])):
-                        Tsvtemp = Tsvtemp + dt[k]*t2
-                        #Tsvtemp=round(Tsvtemp,2)
-                    if not(round(Tsvtemp,1)==Tsv_prev):
-                        Chino.setSv(Tsvtemp)
-                    Tsv_prev=Tsvtemp
-                except:
-                    pass        
-#         Chino.setSv(Tsvtemp)
+                Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
         try:
             t1 = time.time()
             pv2000 = float(Keigetpv.getPv2000())
