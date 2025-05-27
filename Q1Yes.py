@@ -389,25 +389,16 @@ for k in range(1,len(line)):
         
         # 終了条件
         try:
-            if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
-                print(k)
-                print(rate[k])
-                print("Run " + str(k) + " was finished")                           
-                print("wait for" + str(wait[k]) + " sec.")
-                #time.sleep(wait[k])
+            is_heating = rate[k] > 0
+            is_cooling = rate[k] < 0
+            reached_target = (is_heating and float(Tsvtemp) >= float(Tf[k])) or \
+                           (is_cooling and float(Tsvtemp) <= float(Tf[k]))
+            
+            if reached_target:
+                print(f"Run {k} was finished (Tsv: {Tsv[k]}K, Tf: {Tf[k]}K, rate: {rate[k]}K/min)")
+                print(f"Wait for {wait[k]} sec.")
                 t4 = time.time()
-                list_pointer=0
-                break
-                            
-            elif (rate[k] < 0 and float(Tsvtemp) <= float(Tf[k])):
-                print(k)
-                print(Tsv[k])
-                print(Tf[k])
-                print("Run " + str(k) + " was finished")
-                print("wait for" + str(wait[k]) + " sec.")     
-                #time.sleep(wait[k])
-                t4 = time.time()
-                list_pointer=0
+                list_pointer = 0
                 break
         except:
             pass
