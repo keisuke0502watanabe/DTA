@@ -268,21 +268,17 @@ def record_and_display_measurement(list_pointer, t0, t1, Tsvtemp, pv2000, pv2182
     try:
         # 結果の表示
         print(
-            list_pointer, "", 
-            run_number, " ", 
-            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-7],
-            round(float(t1-t0), 1),
-            round(Tsvtemp, 3),
-            "  ",
-            round(pv2000*1000, 2) if pv2000 is not None else 0.0,
-            "m ",
-            round(pv2182A, 5) if pv2182A is not None else 0.0,
-            " ",
-            round(Tpv2182A, 2) if Tpv2182A is not None else 0.0,
-            "   ",
-            round(Tpvchino, 2) if Tpvchino is not None else 0.0,
-            round(pressure, 5) if pressure is not None else 0.0,
-            Vp if Vp is not None else ""
+            f"{list_pointer:4d}  ",
+            f"{run_number:3d}  ",
+            f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-7]}  ",
+            f"{round(float(t1-t0), 1):6.1f}  ",
+            f"{round(Tsvtemp, 3):7.3f}  ",
+            f"{round(pv2000*1000, 2) if pv2000 is not None else 0.0:8.2f}  ",
+            f"{round(pv2182A, 5) if pv2182A is not None else 0.0:9.5f}  ",
+            f"{round(Tpv2182A, 2) if Tpv2182A is not None else 0.0:9.2f}  ",
+            f"{round(Tpvchino, 2) if Tpvchino is not None else 0.0:9.2f}  ",
+            f"{round(pressure, 5) if pressure is not None else 0.0:8.5f}  ",
+            f"{Vp if Vp is not None else ''}"
         )
         
         # 結果の記録
@@ -317,14 +313,8 @@ def record_and_display_measurement(list_pointer, t0, t1, Tsvtemp, pv2000, pv2182
         f.write(default_result)
         f.close()
 
-# 初期待ち時間中の測定を開始
-print("初期待ち時間 {}秒 の測定を開始します".format(wait1st))
-t0 = time.time()
-t3 = t0
-list_pointer = 0
-
 # ヘッダーの表示
-header = "No." + "Run " + " Date       Time"+ "     t/s  Tsv / K"+ "   pv2000  "+ "pv2182A"+ "  Tpv2182"+ "   Tpvchino"+" P / MPa"+ " pv2000pressure"
+header = "No.  Run  Date       Time     t/s    Tsv/K    pv2000    pv2182A    Tpv2182    Tpvchino    P/MPa    Vp"
 print(header)
 
 # 初期待ち時間中の測定ループ
