@@ -193,12 +193,28 @@ t0 = time.time()
 t3 = t0
 
 def update_temperature(rate_k, Tsvtemp, Tf_k, dt_k, t2, Tsv_prev):
+    """
+    温度制御を行う関数
+    Args:
+        rate_k: 温度変化率 (K/min)
+        Tsvtemp: 現在の温度設定値 (K)
+        Tf_k: 目標温度 (K)
+        dt_k: 時間間隔 (min)
+        t2: 経過時間 (s)
+        Tsv_prev: 前回の温度設定値 (K)
+    Returns:
+        Tsvtemp: 更新された温度設定値 (K)
+        Tsv_prev: 更新された前回の温度設定値 (K)
+    """
     try:
+        # 加熱時: 現在温度が目標温度以下の場合、温度を上昇
         if (rate_k > 0 and float(Tsvtemp) <= float(Tf_k)):
             Tsvtemp = Tsvtemp + dt_k*t2
+        # 冷却時: 現在温度が目標温度以上の場合、温度を下降
         elif (rate_k < 0 and float(Tsvtemp) >= float(Tf_k)):
             Tsvtemp = Tsvtemp + dt_k*t2
             
+        # 温度設定値が0.1K以上変化した場合のみ、温度制御器に設定値を送信
         if not(round(Tsvtemp,1)==Tsv_prev):
             Chino.setSv(Tsvtemp)
         Tsv_prev=Tsvtemp
@@ -235,8 +251,10 @@ for k in range(1,len(line)):
         t2 = t1-t3
         t3 = t1
         
+        # 最初の測定の場合
         if k==1:
             Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
+        # 2回目以降の測定の場合、待機時間を考慮
         else:
             if t1 > t4+wait[k-1]:
                 Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
