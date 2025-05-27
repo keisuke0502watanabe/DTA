@@ -199,10 +199,6 @@ print("The measurement started at "+ str(datetime.datetime.now()))
 td = datetime.timedelta(minutes=timeExp)
 print("The measurement will finish at "+str(datetime.datetime.now()+td))
 #line_notify("The measurement will finish at "+str(datetime.datetime.now()+td))
-time.sleep(wait1st)
-
-t0 = time.time()
-t3 = t0
 
 def update_temperature(rate_k, Tsvtemp, Tf_k, dt_k, t2, Tsv_prev):
     """
@@ -234,6 +230,77 @@ def update_temperature(rate_k, Tsvtemp, Tf_k, dt_k, t2, Tsv_prev):
         pass
     return Tsvtemp, Tsv_prev
 
+def get_measurement_data():
+    """
+    測定データを取得する関数
+    Returns:
+        tuple: (pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp)
+    """
+    try:
+        pv2000 = float(Keigetpv.getPv2000())
+        pv2182A = float(Keigetpv.getPv2182A())
+        Tpv2000 = vttotemp.VtToTemp(pv2000)
+        Tpv2182A = vttotemp.VtToTemp(pv2182A*1000000)
+        Tpvchino = Chino.getPv()
+        pressure, Vp = Keigetpv.get_pressure()
+        return pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp
+    except Exception as e:
+        print("測定データの取得中にエラーが発生しました: {}".format(e))
+        return None, None, None, None, None, None, None
+
+# 初期待ち時間中の測定を開始
+print("初期待ち時間 {}秒 の測定を開始します".format(wait1st))
+t0 = time.time()
+t3 = t0
+list_pointer = 0
+
+# 初期待ち時間中の測定ループ
+while time.time() - t0 < wait1st:
+    time.sleep(0.5)
+    try:
+        t1 = time.time()
+        t2 = t1-t3
+        t3 = t1
+        
+        # 測定値の取得
+        pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp = get_measurement_data()
+        
+        # 結果の記録
+        list_pointer += 1
+        f = open(str(filenameResults), mode='a')
+        current_time = datetime.datetime.now()
+        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
+        
+        result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
+            list_pointer,
+            round(float(Tsvtemp),3),
+            round(float(t1-t0),2),
+            pv2000,
+            pv2182A,
+            round(Tpv2182A, 2),
+            "waiting",
+            0,
+            datetime.date.today(),
+            datetime.datetime.now().time(),
+            sampleName,
+            pressure,
+            Vp,
+            round(Tpvchino, 2)
+        )
+        f.write(result)
+        f.close()
+        
+        # 進捗表示
+        if (list_pointer % 10) == 0:
+            print("待ち時間中の測定: {}回目, 経過時間: {}秒".format(list_pointer, round(t1-t0, 1)))
+            
+    except Exception as e:
+        print("測定中にエラーが発生しました: {}".format(e))
+        continue
+
+print("初期待ち時間 {}秒 の測定が完了しました".format(wait1st))
+
+# メインの測定ループ開始
 for k in range(1,len(line)):
     print("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K" )
     #line_notify("Run the measurement number " + str(k) +" ! Tsv= "+str(Tsv[k])+" K")
@@ -263,27 +330,16 @@ for k in range(1,len(line)):
         t2 = t1-t3
         t3 = t1
         
-        # 最初の測定の場合
         if k==1:
             Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
-        # 2回目以降の測定の場合、待機時間を考慮
         else:
             if t1 > t4+wait[k-1]:
                 Tsvtemp, Tsv_prev = update_temperature(rate[k], Tsvtemp, Tf[k], dt[k], t2, Tsv_prev)
-        try:
-            t1 = time.time()
-            pv2000 = float(Keigetpv.getPv2000())
-            pv2182A = float(Keigetpv.getPv2182A())
-            Tpv2000=vttotemp.VtToTemp(pv2000)
-            a = vttotemp.VtToTemp(pv2000)
-            Tpv2182A=vttotemp.VtToTemp(pv2182A*1000000)
-            Tpvchino=Chino.getPv()
-        except:
-            pass
-                # 記録＆可視化
-#        
-# threadAmb = threading.Thread(target=ambTh, args=(t0, t1, pv2182A, pv2000,filenameError,))
-# threadAmb.start()
+        
+        # 測定値の取得
+        pv2000, pv2182A, Tpv2000, Tpv2182A, Tpvchino, pressure, Vp = get_measurement_data()
+        
+        # 記録＆可視化
         f = open(str(filenameResults), mode='a')
         if rate[k] > 0:
                     hoc = "heat"
@@ -294,10 +350,6 @@ for k in range(1,len(line)):
 
         # Format with 2 decimal places for seconds
         formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-7]
-        try:
-            pressure,Vp=Keigetpv.get_pressure()
-        except:
-            pass
         
         try:
             print(
@@ -317,7 +369,6 @@ for k in range(1,len(line)):
             round(pressure, 5) if pressure is not None else 0.0,
             Vp if Vp is not None else ""
             )
-            #print(k, " ",formatted_time,round(float(t1-t0),1),round(Tsvtemp,3),round(pv2000,2),round(pv2182A,5),round(Tpv2000,2),"   ",round(Tpvchino,2),round(pressure,5),Vp)
             
             result = "{}\t{:.3f}\t {:.10f}\t {:.10f}\t {:.10f}\t {:.10f}\t {} \t {} \t {} \t {} \t {} \t {} \t {}\t{}\n".format(
             list_pointer,
@@ -336,74 +387,20 @@ for k in range(1,len(line)):
             Vp if Vp is not None else "",
             round(Tpvchino, 2) if Tpvchino is not None else 0.0
             )
-            '''
-            pv2182A,
-            #Tpv2000 if round(Tpv2000,2) is not None else 0.0,
-            Tpv2182A if round(Tpv2182A,2) is not None else 0.0,
-            hoc,
-            k,
-            datetime.date.today(),
-            datetime.datetime.now().time(),
-            sampleName,
-            pressure,
-            Vp,
-            Tpvchino
-            '''
             
-            #print(round(pv2000,2))
             f.write(result)
-        #except:
-            #pass
         except Exception as e:
             print(f"Error formatting result: {e}")
-            #print(298)
             # Either define a default result or skip writing to file
             # For example:
             default_result = f"{Tsvtemp}\t {t1-t0}\t {pv2000}\t {pv2182A}\t ERROR\t {hoc}\t {k} \t {datetime.date.today()} \t {datetime.datetime.now().time()} \t {sampleName} \t {pressure} \t {Vp}\n \t {Tpvchino}"
             f.write(default_result)
-        #f.write(result)
         f.close()
-        '''
-        try:
-                    cell_list[list_pointer].value= float(Tsv[k])
-                    cell_list[list_pointer+1].value=float(t1-t0)
-                    cell_list[list_pointer+2].value=pv2000
-                    cell_list[list_pointer+3].value=pv2182A
-                    cell_list[list_pointer+4].value=vttotemp.VtToTemp(pv2000)
-                    cell_list[list_pointer+5].value=vttotemp.VtToTemp(pv2182A)
-                    cell_list[list_pointer+6].value=hoc
-                    cell_list[list_pointer+7].value=k
-                    cell_list[list_pointer+8].value=str(datetime.date.today())
-                    cell_list[list_pointer+9].value=str(datetime.datetime.now().time())
-                    cell_list[list_pointer+10].value=sampleName
-                    
-        except:
-                    pass
-        '''
+        
         if (list_pointer % 10) == 0:
             print('upload')
             print(header)
         
-
-        '''
-            try:
-                thread2.start()
-            except:
-                pass
-        '''
-            #wks.update_cells(cell_list)
-            #list_pointer = 0
-            #sheet_pointer += 10
-                        
-#############  
-# 2022/07/05 Watanabe commented out, modified
-        '''
-            try:
-                thread3.start()
-            except:
-                pass
-        '''
-#############
         # 終了条件
         try:
             if (rate[k] > 0 and float(Tsvtemp) >= float(Tf[k])):
